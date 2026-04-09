@@ -25,7 +25,7 @@ namespace wall::config
     /**
      * @brief Build a config instance from environment variables.
      */
-    static WallConfig from_env();
+    [[nodiscard]] static WallConfig from_env();
 
     /**
      * @brief Default constructor.
@@ -50,67 +50,67 @@ namespace wall::config
     /**
      * @brief Get the application environment.
      */
-    const std::string &app_env() const noexcept;
+    [[nodiscard]] const std::string &app_env() const noexcept;
 
     /**
      * @brief Get the HTTP host.
      */
-    const std::string &host() const noexcept;
+    [[nodiscard]] const std::string &host() const noexcept;
 
     /**
      * @brief Get the HTTP port.
      */
-    int port() const noexcept;
+    [[nodiscard]] int port() const noexcept;
 
     /**
      * @brief Get the public base URL.
      */
-    const std::string &public_url() const noexcept;
+    [[nodiscard]] const std::string &public_url() const noexcept;
 
     /**
      * @brief Get the SQLite database path.
      */
-    const std::string &database_path() const noexcept;
+    [[nodiscard]] const std::string &database_path() const noexcept;
 
     /**
      * @brief Get the log directory.
      */
-    const std::string &log_dir() const noexcept;
+    [[nodiscard]] const std::string &log_dir() const noexcept;
 
     /**
      * @brief Get the maximum allowed message length.
      */
-    int max_message_length() const noexcept;
+    [[nodiscard]] int max_message_length() const noexcept;
 
     /**
      * @brief Get the maximum allowed username length.
      */
-    int max_username_length() const noexcept;
+    [[nodiscard]] int max_username_length() const noexcept;
 
     /**
      * @brief Get the rate-limit window in seconds.
      */
-    int rate_limit_window_sec() const noexcept;
+    [[nodiscard]] int rate_limit_window_sec() const noexcept;
 
     /**
      * @brief Get the max requests allowed during the rate-limit window.
      */
-    int rate_limit_max_requests() const noexcept;
+    [[nodiscard]] int rate_limit_max_requests() const noexcept;
 
     /**
      * @brief Check whether debug mode is enabled.
      */
-    bool debug() const noexcept;
+    [[nodiscard]] bool debug() const noexcept;
 
     /**
      * @brief Check whether the app runs in production mode.
      */
-    bool is_production() const noexcept;
+    [[nodiscard]] bool is_production() const noexcept;
 
     /**
      * @brief Check whether the app runs in development mode.
      */
-    bool is_development() const noexcept;
+    [[nodiscard]] bool is_development() const noexcept;
 
   private:
     std::string app_env_{"development"};

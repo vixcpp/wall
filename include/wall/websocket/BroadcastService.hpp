@@ -11,6 +11,8 @@
 #define WALL_WEBSOCKET_BROADCASTSERVICE_HPP
 
 #include <cstdint>
+#include <string>
+#include <vector>
 
 #include <vix/json/Simple.hpp>
 
@@ -32,27 +34,41 @@ namespace wall::websocket
     /**
      * @brief Build a broadcast payload for a created message.
      */
-    vix::json::kvs message_created(const wall::domain::Message &message) const;
+    [[nodiscard]] vix::json::kvs message_created(
+        const wall::domain::Message &message) const;
 
     /**
      * @brief Build a broadcast payload for a created reaction.
      */
-    vix::json::kvs reaction_created(const wall::domain::Reaction &reaction) const;
+    [[nodiscard]] vix::json::kvs reaction_created(
+        const wall::domain::Reaction &reaction) const;
 
     /**
      * @brief Build a broadcast payload for updated presence.
      */
-    vix::json::kvs presence_updated(std::int64_t online_sessions) const;
+    [[nodiscard]] vix::json::kvs presence_updated(
+        std::int64_t online_sessions) const;
 
     /**
      * @brief Build a broadcast payload for updated stats.
      */
-    vix::json::kvs stats_updated(const wall::domain::Stats &stats) const;
+    [[nodiscard]] vix::json::kvs stats_updated(
+        const wall::domain::Stats &stats) const;
+
+    /**
+     * @brief Build a bootstrap payload sent when a client connects.
+     */
+    [[nodiscard]] vix::json::kvs hello(
+        const std::string &session_id,
+        std::int64_t online_sessions,
+        const wall::domain::Stats &stats,
+        const std::vector<wall::domain::Message> &latest_messages) const;
 
     /**
      * @brief Build a broadcast payload for an error event.
      */
-    vix::json::kvs error(const std::vector<std::string> &errors) const;
+    [[nodiscard]] vix::json::kvs error(
+        const std::vector<std::string> &errors) const;
   };
 
 } // namespace wall::websocket

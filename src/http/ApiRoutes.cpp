@@ -1,8 +1,12 @@
 #include <wall/http/ApiRoutes.hpp>
 
+#include <algorithm>
+#include <cstddef>
 #include <string>
+#include <string_view>
 
 #include <vix/core.hpp>
+#include <vix/json/json.hpp>
 
 #include <wall/json/MessageJson.hpp>
 #include <wall/json/StatsJson.hpp>
@@ -10,29 +14,78 @@
 #include <wall/validation/PostMessageInput.hpp>
 #include <wall/validation/ReactInput.hpp>
 #include <wall/validation/ValidationJson.hpp>
-#include <wall/websocket/WallWebSocket.hpp>
 #include <wall/websocket/PresenceHub.hpp>
+#include <wall/websocket/WallWebSocket.hpp>
 
 namespace wall::http
 {
   namespace
   {
-    std::string json_string_or(const vix::json::token &obj,
+    std::string json_string_or(const vix::json::Json &obj,
                                std::string_view key,
                                std::string fallback = "")
     {
-      if (!obj.is_object())
+      return vix::json::get_or<std::string>(obj, key, std::move(fallback));
+    }
+
+    int parse_int_or(std::string_view text, int fallback)
+    {
+      if (text.empty())
         return fallback;
 
-      auto object = obj.as_object_ptr();
-      if (!object)
-        return fallback;
+      int value = 0;
+      bool has_digit = false;
 
-      const auto *value = object->find(key);
-      if (!value || !value->is_string())
-        return fallback;
+      for (char c : text)
+      {
+        if (c < '0' || c > '9')
+          return fallback;
 
-      return value->as_string_or(std::move(fallback));
+        has_digit = true;
+        value = value * 10 + (c - '0');
+      }
+
+      return has_digit ? value : fallback;
+    }
+
+    std::string query_value(std::string_view target, std::string_view key)
+    {
+      const auto qpos = target.find('?');
+      if (qpos == std::string_view::npos)
+        return "";
+
+      std::string_view query = target.substr(qpos + 1);
+
+      while (!query.empty())
+      {
+        const auto amp = query.find('&');
+        const std::string_view pair =
+            (amp == std::string_view::npos) ? query : query.substr(0, amp);
+
+        const auto eq = pair.find('=');
+        const std::string_view k =
+            (eq == std::string_view::npos) ? pair : pair.substr(0, eq);
+        const std::string_view v =
+            (eq == std::string_view::npos) ? std::string_view{} : pair.substr(eq + 1);
+
+        if (k == key)
+          return std::string(v);
+
+        if (amp == std::string_view::npos)
+          break;
+
+        query.remove_prefix(amp + 1);
+      }
+
+      return "";
+    }
+
+    std::size_t request_limit_or(vix::Request &req, int fallback = 20)
+    {
+      const std::string raw = query_value(req.target(), "limit");
+      const int limit = parse_int_or(raw, fallback);
+      const int safe = std::clamp(limit, 1, 100);
+      return static_cast<std::size_t>(safe);
     }
   } // namespace
 
@@ -44,28 +97,22 @@ namespace wall::http
     app.get("/api/messages",
             [&wall_service](vix::Request &req, vix::Response &res)
             {
-              const int limit = req.query_int("limit", 20);
-              const std::size_t safe_limit =
-                  limit <= 0 ? 20u : static_cast<std::size_t>(limit > 100 ? 100 : limit);
+              const std::size_t limit = request_limit_or(req, 20);
+              const auto messages = wall_service.latest_messages(limit);
 
-              const auto messages = wall_service.latest_messages(safe_limit);
-
-              res.json(vix::json::obj({
-                  "ok",
-                  true,
-                  "messages",
-                  wall::json::MessageJson::to_array(messages),
-              }));
+              res.json(vix::json::o(
+                  "ok", true,
+                  "messages", wall::json::MessageJson::to_array(messages)));
             });
 
     app.post("/api/messages",
              [&wall_service, &wall_websocket](vix::Request &req, vix::Response &res)
              {
-               const auto &body = req.json();
+               const vix::json::Json &body = req.json();
 
                wall::validation::PostMessageInput input;
-               input.set_username(json_string_or(body, "username", ""));
-               input.set_text(json_string_or(body, "text", ""));
+               input.set_username(json_string_or(body, "username"));
+               input.set_text(json_string_or(body, "text"));
 
                const auto result = wall_service.post_message(input);
 
@@ -78,12 +125,9 @@ namespace wall::http
 
                const auto &message = *result.message;
 
-               res.status(201).json(vix::json::obj({
-                   "ok",
-                   true,
-                   "message",
-                   wall::json::MessageJson::to_json(message),
-               }));
+               res.status(201).json(vix::json::o(
+                   "ok", true,
+                   "message", wall::json::MessageJson::to_json(message)));
 
                wall_websocket.broadcast_message(message);
                wall_websocket.broadcast_presence();
@@ -92,11 +136,11 @@ namespace wall::http
     app.post("/api/reactions",
              [&wall_service, &wall_websocket](vix::Request &req, vix::Response &res)
              {
-               const auto &body = req.json();
+               const vix::json::Json &body = req.json();
 
                wall::validation::ReactInput input;
-               input.set_message_id(json_string_or(body, "message_id", ""));
-               input.set_kind(json_string_or(body, "kind", ""));
+               input.set_message_id(json_string_or(body, "message_id"));
+               input.set_kind(json_string_or(body, "kind"));
 
                const auto result = wall_service.react(input);
 
@@ -109,21 +153,9 @@ namespace wall::http
 
                const auto &reaction = *result.reaction;
 
-               res.status(201).json(vix::json::obj({
-                   "ok",
-                   true,
-                   "reaction",
-                   vix::json::obj({
-                       "id",
-                       reaction.id(),
-                       "message_id",
-                       reaction.message_id(),
-                       "kind",
-                       reaction.kind(),
-                       "created_at_ms",
-                       reaction.created_at_ms(),
-                   }),
-               }));
+               res.status(201).json(vix::json::o(
+                   "ok", true,
+                   "reaction", vix::json::o("id", reaction.id(), "message_id", reaction.message_id(), "kind", reaction.kind(), "created_at_ms", reaction.created_at_ms())));
 
                wall_websocket.broadcast_reaction(reaction);
              });
@@ -131,15 +163,11 @@ namespace wall::http
     app.get("/api/stats",
             [&wall_service, &presence_hub](vix::Request &, vix::Response &res)
             {
-              const auto stats =
-                  wall_service.stats(presence_hub.online_count());
+              const auto stats = wall_service.stats(presence_hub.online_count());
 
-              res.json(vix::json::obj({
-                  "ok",
-                  true,
-                  "stats",
-                  wall::json::StatsJson::to_json(stats),
-              }));
+              res.json(vix::json::o(
+                  "ok", true,
+                  "stats", wall::json::StatsJson::to_json(stats)));
             });
   }
 

@@ -1,7 +1,6 @@
 #include <wall/http/HttpServer.hpp>
 
 #include <memory>
-#include <stdexcept>
 
 #include <vix.hpp>
 
@@ -51,17 +50,7 @@ namespace wall::http
 
   void HttpServer::run()
   {
-    /**
-     * NOTE:
-     * Adjust these calls if your current Vix App API uses different names.
-     *
-     * Expected intent:
-     * - bind/listen on config_.host() + config_.port()
-     * - run the app loop
-     */
-
-    app_->bind(config_.host(), config_.port());
-    app_->run();
+    app_->run(config_.port());
   }
 
 } // namespace wall::http

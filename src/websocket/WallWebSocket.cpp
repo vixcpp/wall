@@ -1,8 +1,10 @@
 #include <wall/websocket/WallWebSocket.hpp>
+
+#include <cstdint>
+#include <mutex>
 #include <utility>
+
 #include <vix/websocket/protocol.hpp>
-#include <wall/json/MessageJson.hpp>
-#include <wall/json/StatsJson.hpp>
 #include <wall/websocket/WallEvents.hpp>
 
 namespace wall::websocket
@@ -23,13 +25,13 @@ namespace wall::websocket
   void WallWebSocket::install()
   {
     server_.on_open(
-        [this](auto &session)
+        [this](Session &session)
         {
           handle_open(session);
         });
 
     server_.on_close(
-        [this](auto &session)
+        [this](Session &session)
         {
           handle_close(session);
         });
@@ -39,7 +41,7 @@ namespace wall::websocket
   {
     server_.broadcast_json(
         std::string(WallEvents::message),
-        wall::json::MessageJson::to_json(message));
+        broadcast_service_.message_created(message));
 
     broadcast_stats();
   }
@@ -48,16 +50,7 @@ namespace wall::websocket
   {
     server_.broadcast_json(
         std::string(WallEvents::reaction),
-        vix::json::obj({
-            "id",
-            reaction.id(),
-            "message_id",
-            reaction.message_id(),
-            "kind",
-            reaction.kind(),
-            "created_at_ms",
-            reaction.created_at_ms(),
-        }));
+        broadcast_service_.reaction_created(reaction));
 
     broadcast_stats();
   }
@@ -66,10 +59,8 @@ namespace wall::websocket
   {
     server_.broadcast_json(
         std::string(WallEvents::presence),
-        vix::json::obj({
-            "online_sessions",
-            presence_hub_.online_count(),
-        }));
+        broadcast_service_.presence_updated(
+            static_cast<std::int64_t>(presence_hub_.online_count())));
   }
 
   void WallWebSocket::broadcast_stats()
@@ -79,7 +70,7 @@ namespace wall::websocket
 
     server_.broadcast_json(
         std::string(WallEvents::stats),
-        wall::json::StatsJson::to_json(stats));
+        broadcast_service_.stats_updated(stats));
   }
 
   void WallWebSocket::handle_open(Session &session)
@@ -111,16 +102,11 @@ namespace wall::websocket
     send_event(
         session,
         WallEvents::hello,
-        vix::json::obj({
-            "session_id",
+        broadcast_service_.hello(
             session_id,
-            "online_sessions",
-            presence_hub_.online_count(),
-            "stats",
-            wall::json::StatsJson::to_json(stats),
-            "latest_messages",
-            wall::json::MessageJson::to_array(latest_messages),
-        }));
+            static_cast<std::int64_t>(presence_hub_.online_count()),
+            stats,
+            latest_messages));
   }
 
   void WallWebSocket::send_event(Session &session,

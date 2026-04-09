@@ -1,24 +1,33 @@
 #include <wall/config/WallConfig.hpp>
 
+#include <algorithm>
 #include <utility>
 
 #include <wall/util/Env.hpp>
 
 namespace wall::config
 {
+  namespace
+  {
+    int clamp_at_least(int value, int minimum) noexcept
+    {
+      return value < minimum ? minimum : value;
+    }
+  } // namespace
+
   WallConfig WallConfig::from_env()
   {
     return WallConfig(
         wall::util::Env::app_env(),
         wall::util::Env::host(),
-        wall::util::Env::port(),
+        clamp_at_least(wall::util::Env::port(), 1),
         wall::util::Env::public_url(),
         wall::util::Env::database_path(),
         wall::util::Env::log_dir(),
-        wall::util::Env::max_message_length(),
-        wall::util::Env::max_username_length(),
-        wall::util::Env::rate_limit_window_sec(),
-        wall::util::Env::rate_limit_max_requests(),
+        clamp_at_least(wall::util::Env::max_message_length(), 1),
+        clamp_at_least(wall::util::Env::max_username_length(), 1),
+        clamp_at_least(wall::util::Env::rate_limit_window_sec(), 1),
+        clamp_at_least(wall::util::Env::rate_limit_max_requests(), 1),
         wall::util::Env::debug());
   }
 
@@ -35,14 +44,14 @@ namespace wall::config
                          bool debug)
       : app_env_(std::move(app_env)),
         host_(std::move(host)),
-        port_(port),
+        port_(clamp_at_least(port, 1)),
         public_url_(std::move(public_url)),
         database_path_(std::move(database_path)),
         log_dir_(std::move(log_dir)),
-        max_message_length_(max_message_length),
-        max_username_length_(max_username_length),
-        rate_limit_window_sec_(rate_limit_window_sec),
-        rate_limit_max_requests_(rate_limit_max_requests),
+        max_message_length_(clamp_at_least(max_message_length, 1)),
+        max_username_length_(clamp_at_least(max_username_length, 1)),
+        rate_limit_window_sec_(clamp_at_least(rate_limit_window_sec, 1)),
+        rate_limit_max_requests_(clamp_at_least(rate_limit_max_requests, 1)),
         debug_(debug)
   {
   }

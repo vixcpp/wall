@@ -1,6 +1,10 @@
 #include <wall/websocket/BroadcastService.hpp>
+
 #include <wall/json/EventJson.hpp>
+#include <wall/json/MessageJson.hpp>
+#include <wall/json/StatsJson.hpp>
 #include <wall/validation/ValidationJson.hpp>
+#include <wall/websocket/WallEvents.hpp>
 
 namespace wall::websocket
 {
@@ -28,11 +32,31 @@ namespace wall::websocket
     return wall::json::EventJson::stats_updated(stats);
   }
 
+  vix::json::kvs BroadcastService::hello(
+      const std::string &session_id,
+      std::int64_t online_sessions,
+      const wall::domain::Stats &stats,
+      const std::vector<wall::domain::Message> &latest_messages) const
+  {
+    return wall::json::EventJson::make(
+        WallEvents::hello,
+        vix::json::kvs{
+            "session_id",
+            session_id,
+            "online_sessions",
+            online_sessions,
+            "stats",
+            wall::json::StatsJson::to_json(stats),
+            "latest_messages",
+            wall::json::MessageJson::to_array(latest_messages),
+        });
+  }
+
   vix::json::kvs BroadcastService::error(
       const std::vector<std::string> &errors) const
   {
     return wall::json::EventJson::make(
-        "wall.error",
+        WallEvents::error,
         wall::validation::ValidationJson::error_payload(errors));
   }
 
