@@ -27,6 +27,8 @@ namespace wall::http
   {
   }
 
+  HttpServer::~HttpServer() = default;
+
   vix::App &HttpServer::app() noexcept
   {
     return *app_;

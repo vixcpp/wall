@@ -9,6 +9,7 @@ namespace wall::app
 {
   ServerContext::ServerContext(wall::config::WallConfig config)
       : config_(std::move(config)),
+        core_config_(),
         sqlite_(config_),
         message_repository_(sqlite_),
         stats_repository_(sqlite_),
@@ -23,9 +24,10 @@ namespace wall::app
             moderation_service_),
         presence_hub_(),
         broadcast_service_(),
-        ws_server_(std::make_unique<vix::websocket::Server>()),
+        ws_executor_(std::make_shared<vix::executor::RuntimeExecutor>()),
+        ws_server_(nullptr),
         wall_websocket_(
-            *ws_server_,
+            *static_cast<vix::websocket::Server *>(nullptr),
             wall_service_,
             presence_hub_,
             broadcast_service_),
@@ -36,6 +38,11 @@ namespace wall::app
             wall_websocket_,
             presence_hub_)
   {
+    core_config_.set("websocket.host", "0.0.0.0");
+    core_config_.set("websocket.port", config_.port());
+
+    ws_server_ = std::make_unique<vix::websocket::Server>(core_config_, ws_executor_);
+
     wall::storage::Schema::ensure(sqlite_);
   }
 

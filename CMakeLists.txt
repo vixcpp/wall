@@ -8,6 +8,7 @@ project(wall
 
 option(WALL_BUILD_TESTS "Build wall tests" OFF)
 option(WALL_BUILD_EXAMPLES "Build wall examples" OFF)
+option(WALL_USE_LOCAL_VIX "Prefer local Vix source tree over installed package" ON)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -17,15 +18,51 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-find_package(vix QUIET CONFIG)
-if (NOT vix_FOUND)
-    find_package(Vix CONFIG REQUIRED)
+# ------------------------------------------------------
+# Core Vix runtime
+# ------------------------------------------------------
+# Prefer the local Vix repo so wall always builds against
+# the latest source changes (for example Config::set()).
+set(WALL_VIX_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../vix" CACHE PATH "Path to local Vix source tree")
+
+# # ------------------------------------------------------
+# # Vix DB configuration (must be BEFORE add_subdirectory)
+# # ------------------------------------------------------
+# set(VIX_ENABLE_DB ON CACHE BOOL "" FORCE)
+# set(VIX_DB_USE_SQLITE ON CACHE BOOL "" FORCE)
+# set(VIX_DB_REQUIRE_SQLITE ON CACHE BOOL "" FORCE)
+
+if (WALL_USE_LOCAL_VIX AND EXISTS "${WALL_VIX_SOURCE_DIR}/CMakeLists.txt")
+    message(STATUS "wall: using local Vix source tree: ${WALL_VIX_SOURCE_DIR}")
+    add_subdirectory("${WALL_VIX_SOURCE_DIR}" "${CMAKE_BINARY_DIR}/_deps/vix-build" EXCLUDE_FROM_ALL)
+else()
+    message(STATUS "wall: using installed Vix package")
+    find_package(vix QUIET CONFIG)
+    if (NOT vix_FOUND)
+        find_package(Vix CONFIG REQUIRED)
+    endif()
 endif()
 
+# Normalize the target name if the local repo exposes `vix`
+# instead of `vix::vix`.
+if (TARGET vix AND NOT TARGET vix::vix)
+    add_library(vix::vix ALIAS vix)
+endif()
+
+if (NOT TARGET vix::vix)
+    message(FATAL_ERROR "wall: required target vix::vix was not found")
+endif()
+
+# ------------------------------------------------------
+# Local registry packages installed with: vix install
+# ------------------------------------------------------
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.vix/vix_deps.cmake")
     include("${CMAKE_CURRENT_SOURCE_DIR}/.vix/vix_deps.cmake")
 endif()
 
+# ------------------------------------------------------
+# Helpers
+# ------------------------------------------------------
 function(wall_link_optional_targets tgt)
     foreach(dep IN LISTS ARGN)
         if (TARGET ${dep})
@@ -34,6 +71,9 @@ function(wall_link_optional_targets tgt)
     endforeach()
 endfunction()
 
+# ------------------------------------------------------
+# Core library
+# ------------------------------------------------------
 add_library(wall_core
     src/util/Clock.cpp
     src/util/Ids.cpp
@@ -99,6 +139,9 @@ target_link_libraries(wall_core
         vix::vix
 )
 
+# ------------------------------------------------------
+# Main executable
+# ------------------------------------------------------
 add_executable(wall
     src/main.cpp
 )
@@ -116,6 +159,9 @@ else()
     target_compile_options(wall PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
+# ------------------------------------------------------
+# Tests
+# ------------------------------------------------------
 if (WALL_BUILD_TESTS)
     include(CTest)
     enable_testing()
@@ -176,6 +222,9 @@ if (WALL_BUILD_TESTS)
     add_test(NAME wall_stats_service_tests COMMAND wall_stats_service_tests)
 endif()
 
+# ------------------------------------------------------
+# Examples
+# ------------------------------------------------------
 if (WALL_BUILD_EXAMPLES)
     add_executable(wall_http_smoke
         examples/http_smoke.cpp
@@ -203,6 +252,9 @@ if (WALL_BUILD_EXAMPLES)
     endif()
 endif()
 
+# ------------------------------------------------------
+# Convenience target
+# ------------------------------------------------------
 add_custom_target(run
     COMMAND $<TARGET_FILE:wall>
     DEPENDS wall

@@ -16,3 +16,10 @@ CMakeCache.txt
 cmake-build-*/
 cmd.md
 .env
+# Database
+data/*.db
+data/*.db-wal
+data/*.db-shm
+
+# Logs
+data/logs/

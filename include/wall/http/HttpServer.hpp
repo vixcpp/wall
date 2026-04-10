@@ -61,6 +61,19 @@ namespace wall::http
                wall::websocket::PresenceHub &presence_hub);
 
     /**
+     * @brief Destroy the HTTP server wrapper.
+     *
+     * Defined in the implementation file so `vix::App` is complete
+     * when the unique pointer is destroyed.
+     */
+    ~HttpServer();
+
+    HttpServer(const HttpServer &) = delete;
+    HttpServer &operator=(const HttpServer &) = delete;
+    HttpServer(HttpServer &&) noexcept = default;
+    HttpServer &operator=(HttpServer &&) noexcept = default;
+
+    /**
      * @brief Access the underlying Vix app.
      */
     vix::App &app() noexcept;

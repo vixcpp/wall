@@ -102,7 +102,7 @@ namespace wall::http
 
               res.json(vix::json::o(
                   "ok", true,
-                  "messages", wall::json::MessageJson::to_array(messages)));
+                  "messages", vix::json::to_json(wall::json::MessageJson::to_array(messages))));
             });
 
     app.post("/api/messages",
@@ -127,7 +127,7 @@ namespace wall::http
 
                res.status(201).json(vix::json::o(
                    "ok", true,
-                   "message", wall::json::MessageJson::to_json(message)));
+                   "message", vix::json::to_json(wall::json::MessageJson::to_json(message))));
 
                wall_websocket.broadcast_message(message);
                wall_websocket.broadcast_presence();
@@ -167,7 +167,7 @@ namespace wall::http
 
               res.json(vix::json::o(
                   "ok", true,
-                  "stats", wall::json::StatsJson::to_json(stats)));
+                  "stats", vix::json::to_json(wall::json::StatsJson::to_json(stats))));
             });
   }
 

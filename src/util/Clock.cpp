@@ -12,7 +12,7 @@ namespace wall::util
 
   std::int64_t Clock::now_ms() noexcept
   {
-    return Timestamp::now().ms_since_epoch();
+    return Timestamp::now().nanoseconds_since_epoch() / 1'000'000LL;
   }
 
   std::int64_t Clock::now_sec() noexcept

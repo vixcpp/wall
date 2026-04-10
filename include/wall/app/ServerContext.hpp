@@ -12,6 +12,9 @@
 
 #include <memory>
 
+#include <vix/config/Config.hpp>
+#include <vix/executor/RuntimeExecutor.hpp>
+
 #include <wall/config/WallConfig.hpp>
 #include <wall/http/HttpServer.hpp>
 #include <wall/services/MessageService.hpp>
@@ -120,6 +123,15 @@ namespace wall::app
 
   private:
     wall::config::WallConfig config_;
+
+    /**
+     * @brief Core Vix configuration used by the WebSocket server.
+     *
+     * The Vix WebSocket server expects a `vix::config::Config` source.
+     * We derive the needed runtime keys from `WallConfig`.
+     */
+    vix::config::Config core_config_;
+
     wall::storage::Sqlite sqlite_;
     wall::storage::MessageRepository message_repository_;
     wall::storage::StatsRepository stats_repository_;
@@ -130,6 +142,11 @@ namespace wall::app
     wall::services::WallService wall_service_;
     wall::websocket::PresenceHub presence_hub_;
     wall::websocket::BroadcastService broadcast_service_;
+
+    /**
+     * @brief Shared runtime executor used by the Vix WebSocket server.
+     */
+    std::shared_ptr<vix::executor::RuntimeExecutor> ws_executor_;
 
     /**
      * @brief The underlying Vix WebSocket server used by WallWebSocket.
