@@ -14,28 +14,32 @@
     },
   };
 
-  const dom = {
-    form: document.getElementById("message-form"),
-    username: document.getElementById("username"),
-    message: document.getElementById("message"),
-    messageCount: document.getElementById("message-count"),
-    submitButton: document.getElementById("submit-button"),
-    formErrors: document.getElementById("form-errors"),
-
-    statMessages: document.getElementById("stat-messages"),
-    statReactions: document.getElementById("stat-reactions"),
-    statOnline: document.getElementById("stat-online"),
-
-    connectionDot: document.getElementById("connection-dot"),
-    connectionText: document.getElementById("connection-text"),
-    sessionId: document.getElementById("session-id"),
-
-    feed: document.getElementById("feed"),
-    feedEmpty: document.getElementById("feed-empty"),
-  };
-
   const WS_PORT = 9090;
   const WS_PATH = "/";
+
+  let dom = null;
+
+  function getDom() {
+    return {
+      form: document.getElementById("message-form"),
+      username: document.getElementById("username"),
+      message: document.getElementById("message"),
+      messageCount: document.getElementById("message-count"),
+      submitButton: document.getElementById("submit-button"),
+      formErrors: document.getElementById("form-errors"),
+
+      statMessages: document.getElementById("stat-messages"),
+      statReactions: document.getElementById("stat-reactions"),
+      statOnline: document.getElementById("stat-online"),
+
+      connectionDot: document.getElementById("connection-dot"),
+      connectionText: document.getElementById("connection-text"),
+      sessionId: document.getElementById("session-id"),
+
+      feed: document.getElementById("feed"),
+      feedEmpty: document.getElementById("feed-empty"),
+    };
+  }
 
   function escapeHtml(value) {
     return String(value)
@@ -51,11 +55,14 @@
       return "-";
     }
 
-    const date = new Date(ms);
-    return date.toLocaleString();
+    return new Date(ms).toLocaleString();
   }
 
   function setConnectionStatus(kind, text) {
+    if (!dom?.connectionText || !dom?.connectionDot) {
+      return;
+    }
+
     dom.connectionText.textContent = text;
     dom.connectionDot.className = "status-dot";
 
@@ -74,10 +81,16 @@
 
   function setSessionId(value) {
     state.sessionId = value || "";
-    dom.sessionId.textContent = state.sessionId || "-";
+    if (dom?.sessionId) {
+      dom.sessionId.textContent = state.sessionId || "-";
+    }
   }
 
   function showErrors(errors) {
+    if (!dom?.formErrors) {
+      return;
+    }
+
     if (!errors || errors.length === 0) {
       dom.formErrors.hidden = true;
       dom.formErrors.innerHTML = "";
@@ -93,14 +106,30 @@
   }
 
   function updateMessageCount() {
+    if (!dom?.message || !dom?.messageCount) {
+      return;
+    }
+
     const value = dom.message.value || "";
     dom.messageCount.textContent = `${value.length} / 280`;
   }
 
   function renderStats() {
-    dom.statMessages.textContent = String(state.stats.total_messages ?? 0);
-    dom.statReactions.textContent = String(state.stats.total_reactions ?? 0);
-    dom.statOnline.textContent = String(state.stats.online_sessions ?? 0);
+    if (!dom) {
+      return;
+    }
+
+    if (dom.statMessages) {
+      dom.statMessages.textContent = String(state.stats.total_messages ?? 0);
+    }
+
+    if (dom.statReactions) {
+      dom.statReactions.textContent = String(state.stats.total_reactions ?? 0);
+    }
+
+    if (dom.statOnline) {
+      dom.statOnline.textContent = String(state.stats.online_sessions ?? 0);
+    }
   }
 
   function makeReactionButton(messageId) {
@@ -113,6 +142,7 @@
     button.addEventListener("click", async () => {
       try {
         await postReaction(messageId, "⚡");
+        await loadStats();
       } catch (error) {
         console.error("Failed to send reaction:", error);
       }
@@ -137,9 +167,6 @@
     time.className = "message-card__time";
     time.textContent = formatTime(message.created_at_ms);
 
-    header.appendChild(user);
-    header.appendChild(time);
-
     const body = document.createElement("p");
     body.className = "message-card__text";
     body.textContent = message.text || "";
@@ -147,6 +174,9 @@
     const actions = document.createElement("div");
     actions.className = "message-card__actions";
     actions.appendChild(makeReactionButton(message.id));
+
+    header.appendChild(user);
+    header.appendChild(time);
 
     article.appendChild(header);
     article.appendChild(body);
@@ -156,6 +186,10 @@
   }
 
   function renderFeed() {
+    if (!dom?.feed || !dom?.feedEmpty) {
+      return;
+    }
+
     dom.feed.innerHTML = "";
 
     if (!state.messages || state.messages.length === 0) {
@@ -171,6 +205,10 @@
   }
 
   function upsertMessage(message) {
+    if (!message || !message.id) {
+      return;
+    }
+
     const index = state.messages.findIndex((item) => item.id === message.id);
 
     if (index >= 0) {
@@ -200,10 +238,10 @@
 
   function setStats(stats) {
     state.stats = {
-      total_messages: Number(stats?.total_messages || 0),
-      total_reactions: Number(stats?.total_reactions || 0),
-      online_sessions: Number(stats?.online_sessions || 0),
-      generated_at_ms: Number(stats?.generated_at_ms || 0),
+      total_messages: Number(stats?.total_messages ?? 0),
+      total_reactions: Number(stats?.total_reactions ?? 0),
+      online_sessions: Number(stats?.online_sessions ?? 0),
+      generated_at_ms: Number(stats?.generated_at_ms ?? 0),
     };
 
     renderStats();
@@ -270,11 +308,14 @@
     event.preventDefault();
 
     showErrors([]);
-    dom.submitButton.disabled = true;
+
+    if (dom?.submitButton) {
+      dom.submitButton.disabled = true;
+    }
 
     try {
-      const username = dom.username.value || "";
-      const text = dom.message.value || "";
+      const username = dom?.username?.value || "";
+      const text = dom?.message?.value || "";
 
       const payload = await postMessage(username, text);
 
@@ -282,12 +323,19 @@
         upsertMessage(payload.message);
       }
 
-      dom.message.value = "";
+      await loadStats();
+
+      if (dom?.message) {
+        dom.message.value = "";
+      }
+
       updateMessageCount();
     } catch (error) {
       showErrors([error.message || "Failed to post message"]);
     } finally {
-      dom.submitButton.disabled = false;
+      if (dom?.submitButton) {
+        dom.submitButton.disabled = false;
+      }
     }
   }
 
@@ -329,9 +377,12 @@
   function connectWebSocket() {
     clearReconnectTimer();
     closeCurrentSocket();
+
+    const url = websocketUrl();
+    console.log("[wall] connecting ws:", url);
     setConnectionStatus("connecting", "Connecting...");
 
-    const socket = new WebSocket(websocketUrl());
+    const socket = new WebSocket(url);
     state.socket = socket;
 
     socket.addEventListener("open", () => {
@@ -339,19 +390,22 @@
         return;
       }
 
+      console.log("[wall] ws connected");
       setConnectionStatus("online", "Connected");
     });
 
-    socket.addEventListener("close", () => {
+    socket.addEventListener("close", (event) => {
       if (state.socket === socket) {
         state.socket = null;
       }
 
+      console.log("[wall] ws closed", event.code, event.reason);
       setConnectionStatus("offline", "Disconnected");
       scheduleReconnect();
     });
 
-    socket.addEventListener("error", () => {
+    socket.addEventListener("error", (event) => {
+      console.log("[wall] ws error", event);
       if (state.socket !== socket) {
         return;
       }
@@ -364,8 +418,25 @@
         return;
       }
 
+      console.log("[wall] ws message:", event.data);
       handleSocketMessage(event.data);
     });
+  }
+
+  function normalizeSocketMessage(data) {
+    if (!data || typeof data !== "object") {
+      return null;
+    }
+
+    const type = typeof data.type === "string" ? data.type : "";
+    const payload =
+      data.payload && typeof data.payload === "object" ? data.payload : {};
+
+    if (!type) {
+      return null;
+    }
+
+    return { type, payload };
   }
 
   function handleSocketMessage(raw) {
@@ -378,8 +449,13 @@
       return;
     }
 
-    const type = data?.type;
-    const payload = data?.payload || {};
+    const msg = normalizeSocketMessage(data);
+    if (!msg) {
+      console.warn("Unsupported socket message shape:", data);
+      return;
+    }
+
+    const { type, payload } = msg;
 
     if (type === "wall.hello") {
       if (payload.session_id) {
@@ -392,11 +468,8 @@
 
       if (payload.stats) {
         setStats(payload.stats);
-      }
-
-      if (typeof payload.online_sessions !== "undefined") {
-        state.stats.online_sessions = Number(payload.online_sessions || 0);
-        renderStats();
+      } else {
+        setStats(payload);
       }
 
       return;
@@ -404,19 +477,18 @@
 
     if (type === "wall.message") {
       upsertMessage(payload);
-      state.stats.total_messages += 1;
-      renderStats();
       return;
     }
 
     if (type === "wall.reaction") {
-      state.stats.total_reactions += 1;
-      renderStats();
+      loadStats().catch((error) => {
+        console.error("Failed to refresh stats after reaction:", error);
+      });
       return;
     }
 
     if (type === "wall.presence") {
-      state.stats.online_sessions = Number(payload.online_sessions || 0);
+      state.stats.online_sessions = Number(payload.online_sessions ?? 0);
       renderStats();
       return;
     }
@@ -435,6 +507,13 @@
   }
 
   async function bootstrap() {
+    dom = getDom();
+
+    if (!dom.form || !dom.message || !dom.feed) {
+      console.error("[wall] missing required DOM nodes, bootstrap aborted");
+      return;
+    }
+
     updateMessageCount();
     renderStats();
     renderFeed();
@@ -452,5 +531,9 @@
     connectWebSocket();
   }
 
-  bootstrap();
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bootstrap, { once: true });
+  } else {
+    bootstrap();
+  }
 })();

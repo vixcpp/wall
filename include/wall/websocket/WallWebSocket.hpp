@@ -34,8 +34,11 @@ namespace wall::websocket
    *
    * Responsibilities:
    * - track connected sessions
-   * - send a bootstrap payload on connect
    * - broadcast message/reaction/presence/stats updates
+   *
+   * Important:
+   * - session open/close callbacks stay lightweight
+   * - no frame sending is performed directly inside sensitive lifecycle callbacks
    */
   class WallWebSocket
   {
@@ -114,7 +117,7 @@ namespace wall::websocket
     BroadcastService &broadcast_service_;
 
     /**
-     * @brief Maximum number of latest messages sent in the hello event.
+     * @brief Maximum number of latest messages intended for initial bootstrap.
      */
     std::size_t bootstrap_limit_{20};
 
@@ -130,16 +133,25 @@ namespace wall::websocket
 
     /**
      * @brief Handle a newly opened WebSocket session.
+     *
+     * This function intentionally avoids direct send/broadcast operations
+     * inside the sensitive session-open callback.
      */
     void handle_open(Session &session);
 
     /**
      * @brief Handle a closed WebSocket session.
+     *
+     * This function intentionally avoids direct send/broadcast operations
+     * inside the sensitive session-close callback.
      */
     void handle_close(Session &session);
 
     /**
      * @brief Send the initial hello event to a client.
+     *
+     * This helper is kept for future safe bootstrap flows, but is not called
+     * from the current lifecycle callbacks.
      */
     void send_hello(Session &session, const std::string &session_id);
 

@@ -140,8 +140,9 @@ namespace wall::http
                    "ok", true,
                    "message", vix::json::to_json(wall::json::MessageJson::to_json(message))));
 
-               wall_websocket.broadcast_message(message);
-               wall_websocket.broadcast_presence();
+               //  wall_websocket.broadcast_message(message);
+               //  wall_websocket.broadcast_presence();
+               (void)message;
              });
 
     app.post("/api/reactions",
