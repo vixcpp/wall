@@ -66,6 +66,9 @@ namespace wall::storage
     std::optional<std::string> get_meta(const std::string &key);
 
   private:
+    /**
+     * @brief Shared SQLite storage used by this repository.
+     */
     Sqlite &sqlite_;
   };
 

@@ -13,6 +13,7 @@
 
 #include <cstdint>
 #include <mutex>
+#include <string>
 #include <utility>
 
 #include <vix/websocket/protocol.hpp>
@@ -87,19 +88,13 @@ namespace wall::websocket
   void WallWebSocket::handle_open(Session &session)
   {
     const std::string session_id = attach_session(session);
-
-    send_hello(session, session_id);
-    broadcast_presence();
-    broadcast_stats();
+    (void)session_id;
   }
 
   void WallWebSocket::handle_close(Session &session)
   {
     const std::string session_id = detach_session(session);
     (void)session_id;
-
-    broadcast_presence();
-    broadcast_stats();
   }
 
   void WallWebSocket::send_hello(Session &session, const std::string &session_id)
@@ -122,13 +117,13 @@ namespace wall::websocket
 
   void WallWebSocket::send_event(Session &session,
                                  std::string_view type,
-                                 const vix::json::kvs &payload)
+                                 vix::json::kvs payload)
   {
     vix::websocket::JsonMessage message;
     message.kind = "event";
     message.type = std::string(type);
     message.room = "";
-    message.payload = payload;
+    message.payload = std::move(payload);
 
     session.send_text(vix::websocket::JsonMessage::serialize(message));
   }
@@ -165,16 +160,6 @@ namespace wall::websocket
     }
 
     return session_id;
-  }
-
-  std::string WallWebSocket::find_session_id(Session &session) const
-  {
-    std::lock_guard<std::mutex> lock(mutex_);
-    const auto it = session_ids_.find(session_key(session));
-    if (it == session_ids_.end())
-      return {};
-
-    return it->second;
   }
 
   std::uintptr_t WallWebSocket::session_key(Session &session) noexcept

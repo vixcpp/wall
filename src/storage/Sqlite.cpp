@@ -53,6 +53,7 @@ namespace wall::storage
 
   vix::db::PooledConn Sqlite::connect()
   {
+    std::lock_guard<std::mutex> lock(mutex_);
     return vix::db::PooledConn(pool());
   }
 

@@ -11,10 +11,18 @@
  */
 #include <wall/json/EventJson.hpp>
 
+#include <string>
+
+#include <wall/json/MessageJson.hpp>
+#include <wall/json/StatsJson.hpp>
+
 namespace wall::json
 {
   namespace
   {
+    /**
+     * @brief Build the payload of a reaction event.
+     */
     vix::json::kvs reaction_payload(const wall::domain::Reaction &reaction)
     {
       return vix::json::obj({
@@ -29,6 +37,9 @@ namespace wall::json
       });
     }
 
+    /**
+     * @brief Build the payload of a presence event.
+     */
     vix::json::kvs presence_payload(std::int64_t online_sessions)
     {
       return vix::json::obj({
@@ -39,13 +50,13 @@ namespace wall::json
   } // namespace
 
   vix::json::kvs EventJson::make(std::string_view type,
-                                 const vix::json::token &payload)
+                                 vix::json::token payload)
   {
     return vix::json::obj({
         "type",
         std::string(type),
         "payload",
-        payload,
+        std::move(payload),
     });
   }
 

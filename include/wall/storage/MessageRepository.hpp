@@ -14,6 +14,7 @@
 #define WALL_STORAGE_MESSAGEREPOSITORY_HPP
 
 #include <cstddef>
+#include <cstdint>
 #include <optional>
 #include <string>
 #include <vector>
@@ -63,6 +64,9 @@ namespace wall::storage
     std::int64_t count();
 
   private:
+    /**
+     * @brief Shared SQLite storage used by this repository.
+     */
     Sqlite &sqlite_;
   };
 

@@ -13,7 +13,6 @@
 #define WALL_JSON_STATSJSON_HPP
 
 #include <vix/json/Simple.hpp>
-
 #include <wall/domain/Stats.hpp>
 
 namespace wall::json

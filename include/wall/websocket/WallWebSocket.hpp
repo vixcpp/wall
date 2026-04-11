@@ -18,6 +18,7 @@
 #include <string>
 #include <unordered_map>
 
+#include <vix/json/Simple.hpp>
 #include <vix/websocket.hpp>
 
 #include <wall/domain/Message.hpp>
@@ -92,27 +93,80 @@ namespace wall::websocket
   private:
     using Session = vix::websocket::Session;
 
+    /**
+     * @brief Underlying Vix WebSocket server.
+     */
     vix::websocket::Server &server_;
+
+    /**
+     * @brief Central wall application service.
+     */
     wall::services::WallService &wall_service_;
+
+    /**
+     * @brief In-memory presence tracker.
+     */
     PresenceHub &presence_hub_;
+
+    /**
+     * @brief Helper that builds JSON payloads for realtime events.
+     */
     BroadcastService &broadcast_service_;
+
+    /**
+     * @brief Maximum number of latest messages sent in the hello event.
+     */
     std::size_t bootstrap_limit_{20};
 
+    /**
+     * @brief Protects the session id lookup table.
+     */
     mutable std::mutex mutex_;
+
+    /**
+     * @brief Associates a live Vix session pointer with a generated wall session id.
+     */
     std::unordered_map<std::uintptr_t, std::string> session_ids_{};
 
+    /**
+     * @brief Handle a newly opened WebSocket session.
+     */
     void handle_open(Session &session);
+
+    /**
+     * @brief Handle a closed WebSocket session.
+     */
     void handle_close(Session &session);
 
+    /**
+     * @brief Send the initial hello event to a client.
+     */
     void send_hello(Session &session, const std::string &session_id);
+
+    /**
+     * @brief Send one typed event to a single session.
+     *
+     * @param session Target WebSocket session.
+     * @param type Event type name.
+     * @param payload Event payload object.
+     */
     void send_event(Session &session,
                     std::string_view type,
-                    const vix::json::kvs &payload);
+                    vix::json::kvs payload);
 
+    /**
+     * @brief Attach a generated wall session id to a live Vix session.
+     */
     std::string attach_session(Session &session);
-    std::string detach_session(Session &session);
-    std::string find_session_id(Session &session) const;
 
+    /**
+     * @brief Detach a wall session id from a closing Vix session.
+     */
+    std::string detach_session(Session &session);
+
+    /**
+     * @brief Build a stable lookup key from a Vix session reference.
+     */
     static std::uintptr_t session_key(Session &session) noexcept;
   };
 

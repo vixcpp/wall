@@ -13,6 +13,7 @@
 #ifndef WALL_JSON_EVENTJSON_HPP
 #define WALL_JSON_EVENTJSON_HPP
 
+#include <cstdint>
 #include <string_view>
 
 #include <vix/json/Simple.hpp>
@@ -20,8 +21,6 @@
 #include <wall/domain/Message.hpp>
 #include <wall/domain/Reaction.hpp>
 #include <wall/domain/Stats.hpp>
-#include <wall/json/MessageJson.hpp>
-#include <wall/json/StatsJson.hpp>
 
 namespace wall::json
 {
@@ -39,9 +38,13 @@ namespace wall::json
   public:
     /**
      * @brief Build a generic event object.
+     *
+     * The payload is accepted by value so nested JSON objects are moved
+     * into the final event object instead of being referenced through
+     * short-lived temporaries.
      */
     static vix::json::kvs make(std::string_view type,
-                               const vix::json::token &payload);
+                               vix::json::token payload);
 
     /**
      * @brief Build a wall.message event.
