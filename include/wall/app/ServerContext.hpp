@@ -155,8 +155,19 @@ namespace wall::app
      */
     std::unique_ptr<vix::websocket::Server> ws_server_;
 
-    wall::websocket::WallWebSocket wall_websocket_;
-    wall::http::HttpServer http_server_;
+    /**
+     * @brief Wall WebSocket adapter.
+     *
+     * This is allocated after the Vix WebSocket server is fully constructed.
+     */
+    std::unique_ptr<wall::websocket::WallWebSocket> wall_websocket_;
+
+    /**
+     * @brief HTTP server wrapper.
+     *
+     * This is allocated after the WebSocket adapter is fully constructed.
+     */
+    std::unique_ptr<wall::http::HttpServer> http_server_;
   };
 
 } // namespace wall::app

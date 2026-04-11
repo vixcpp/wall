@@ -6,7 +6,12 @@ namespace wall::util
 {
   std::string Env::app_env()
   {
-    return vix::utils::env_or("WALL_APP_ENV", "development");
+    return vix::utils::env_or("APP_ENV", "development");
+  }
+
+  std::string Env::app_root()
+  {
+    return vix::utils::env_or("APP_ROOT", ".");
   }
 
   bool Env::is_production()
@@ -21,12 +26,12 @@ namespace wall::util
 
   std::string Env::host()
   {
-    return vix::utils::env_or("WALL_HOST", "0.0.0.0");
+    return vix::utils::env_or("APP_HOST", "0.0.0.0");
   }
 
   int Env::port()
   {
-    return vix::utils::env_int("WALL_PORT", 8080);
+    return vix::utils::env_int("APP_PORT", 8080);
   }
 
   std::string Env::public_url()
@@ -36,7 +41,7 @@ namespace wall::util
 
   std::string Env::database_path()
   {
-    return vix::utils::env_or("WALL_DB_PATH", "data/wall.db");
+    return vix::utils::env_or("DB_SQLITE_PATH", "data/wall.db");
   }
 
   std::string Env::log_dir()
@@ -66,7 +71,7 @@ namespace wall::util
 
   bool Env::debug()
   {
-    return vix::utils::env_bool("WALL_DEBUG", false);
+    return vix::utils::env_bool("APP_DEBUG", false);
   }
 
 } // namespace wall::util

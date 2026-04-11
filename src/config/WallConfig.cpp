@@ -1,6 +1,6 @@
 #include <wall/config/WallConfig.hpp>
 
-#include <algorithm>
+#include <filesystem>
 #include <utility>
 
 #include <wall/util/Env.hpp>
@@ -13,12 +13,50 @@ namespace wall::config
     {
       return value < minimum ? minimum : value;
     }
+
+    std::string normalize_root(std::string root)
+    {
+      namespace fs = std::filesystem;
+
+      if (root.empty())
+      {
+        return fs::current_path().lexically_normal().string();
+      }
+
+      fs::path p(root);
+
+      if (p.is_relative())
+      {
+        p = fs::current_path() / p;
+      }
+
+      return p.lexically_normal().string();
+    }
+
+    std::string resolve_from_root(const std::string &root, std::string path)
+    {
+      namespace fs = std::filesystem;
+
+      if (path.empty())
+      {
+        return path;
+      }
+
+      fs::path p(path);
+      if (p.is_relative())
+      {
+        p = fs::path(root) / p;
+      }
+
+      return p.lexically_normal().string();
+    }
   } // namespace
 
   WallConfig WallConfig::from_env()
   {
     return WallConfig(
         wall::util::Env::app_env(),
+        wall::util::Env::app_root(),
         wall::util::Env::host(),
         clamp_at_least(wall::util::Env::port(), 1),
         wall::util::Env::public_url(),
@@ -32,6 +70,7 @@ namespace wall::config
   }
 
   WallConfig::WallConfig(std::string app_env,
+                         std::string app_root,
                          std::string host,
                          int port,
                          std::string public_url,
@@ -43,11 +82,12 @@ namespace wall::config
                          int rate_limit_max_requests,
                          bool debug)
       : app_env_(std::move(app_env)),
+        app_root_(normalize_root(std::move(app_root))),
         host_(std::move(host)),
         port_(clamp_at_least(port, 1)),
         public_url_(std::move(public_url)),
-        database_path_(std::move(database_path)),
-        log_dir_(std::move(log_dir)),
+        database_path_(resolve_from_root(app_root_, std::move(database_path))),
+        log_dir_(resolve_from_root(app_root_, std::move(log_dir))),
         max_message_length_(clamp_at_least(max_message_length, 1)),
         max_username_length_(clamp_at_least(max_username_length, 1)),
         rate_limit_window_sec_(clamp_at_least(rate_limit_window_sec, 1)),
@@ -59,6 +99,11 @@ namespace wall::config
   const std::string &WallConfig::app_env() const noexcept
   {
     return app_env_;
+  }
+
+  const std::string &WallConfig::app_root() const noexcept
+  {
+    return app_root_;
   }
 
   const std::string &WallConfig::host() const noexcept

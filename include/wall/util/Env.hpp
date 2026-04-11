@@ -35,6 +35,14 @@ namespace wall::util
     static std::string app_env();
 
     /**
+     * @brief Get the application root directory.
+     *
+     * Relative paths such as the SQLite database path are resolved
+     * from this directory.
+     */
+    static std::string app_root();
+
+    /**
      * @brief True if APP_ENV is "production".
      */
     static bool is_production();
