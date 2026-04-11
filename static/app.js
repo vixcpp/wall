@@ -4,6 +4,7 @@
   const state = {
     sessionId: "",
     socket: null,
+    reconnectTimer: null,
     messages: [],
     stats: {
       total_messages: 0,
@@ -32,6 +33,9 @@
     feed: document.getElementById("feed"),
     feedEmpty: document.getElementById("feed-empty"),
   };
+
+  const WS_PORT = 9090;
+  const WS_PATH = "/";
 
   function escapeHtml(value) {
     return String(value)
@@ -289,29 +293,77 @@
 
   function websocketUrl() {
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    return `${protocol}//${window.location.host}/ws`;
+    const host = window.location.hostname || "localhost";
+    return `${protocol}//${host}:${WS_PORT}${WS_PATH}`;
+  }
+
+  function clearReconnectTimer() {
+    if (state.reconnectTimer !== null) {
+      clearTimeout(state.reconnectTimer);
+      state.reconnectTimer = null;
+    }
+  }
+
+  function scheduleReconnect() {
+    clearReconnectTimer();
+    state.reconnectTimer = setTimeout(() => {
+      connectWebSocket();
+    }, 2000);
+  }
+
+  function closeCurrentSocket() {
+    if (!state.socket) {
+      return;
+    }
+
+    const socket = state.socket;
+    state.socket = null;
+
+    try {
+      socket.close();
+    } catch (_) {
+      // ignore close errors
+    }
   }
 
   function connectWebSocket() {
+    clearReconnectTimer();
+    closeCurrentSocket();
     setConnectionStatus("connecting", "Connecting...");
 
     const socket = new WebSocket(websocketUrl());
     state.socket = socket;
 
     socket.addEventListener("open", () => {
+      if (state.socket !== socket) {
+        return;
+      }
+
       setConnectionStatus("online", "Connected");
     });
 
     socket.addEventListener("close", () => {
+      if (state.socket === socket) {
+        state.socket = null;
+      }
+
       setConnectionStatus("offline", "Disconnected");
-      setTimeout(connectWebSocket, 2000);
+      scheduleReconnect();
     });
 
     socket.addEventListener("error", () => {
+      if (state.socket !== socket) {
+        return;
+      }
+
       setConnectionStatus("offline", "Connection error");
     });
 
     socket.addEventListener("message", (event) => {
+      if (state.socket !== socket) {
+        return;
+      }
+
       handleSocketMessage(event.data);
     });
   }

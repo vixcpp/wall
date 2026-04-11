@@ -55,6 +55,16 @@ namespace wall::websocket
                   std::size_t bootstrap_limit = 20);
 
     /**
+     * @brief Access the underlying Vix WebSocket server.
+     */
+    vix::websocket::Server &server() noexcept;
+
+    /**
+     * @brief Access the underlying Vix WebSocket server (const).
+     */
+    const vix::websocket::Server &server() const noexcept;
+
+    /**
      * @brief Register WebSocket callbacks on the underlying server.
      */
     void install();

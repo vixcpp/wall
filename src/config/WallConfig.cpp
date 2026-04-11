@@ -70,6 +70,7 @@ namespace wall::config
         wall::util::Env::app_root(),
         wall::util::Env::host(),
         clamp_at_least(wall::util::Env::port(), 1),
+        clamp_at_least(wall::util::Env::ws_port(), 1),
         wall::util::Env::public_url(),
         wall::util::Env::database_path(),
         wall::util::Env::log_dir(),
@@ -84,6 +85,7 @@ namespace wall::config
                          std::string app_root,
                          std::string host,
                          int port,
+                         int ws_port,
                          std::string public_url,
                          std::string database_path,
                          std::string log_dir,
@@ -96,6 +98,7 @@ namespace wall::config
         app_root_(normalize_root(std::move(app_root))),
         host_(std::move(host)),
         port_(clamp_at_least(port, 1)),
+        ws_port_(clamp_at_least(ws_port, 1)),
         public_url_(std::move(public_url)),
         database_path_(resolve_from_root(app_root_, std::move(database_path))),
         log_dir_(resolve_from_root(app_root_, std::move(log_dir))),
@@ -125,6 +128,11 @@ namespace wall::config
   int WallConfig::port() const noexcept
   {
     return port_;
+  }
+
+  int WallConfig::ws_port() const noexcept
+  {
+    return ws_port_;
   }
 
   const std::string &WallConfig::public_url() const noexcept

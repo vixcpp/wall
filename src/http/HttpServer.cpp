@@ -13,6 +13,7 @@
 
 #include <memory>
 #include <vix/core.hpp>
+#include <vix/websocket/AttachedRuntime.hpp>
 
 #include <wall/config/WallConfig.hpp>
 #include <wall/http/RouteRegistrar.hpp>
@@ -62,7 +63,11 @@ namespace wall::http
 
   void HttpServer::run()
   {
-    app_->run(config_.port());
+    vix::run_http_and_ws(
+        *app_,
+        wall_websocket_.server(),
+        nullptr,
+        config_.port());
   }
 
 } // namespace wall::http

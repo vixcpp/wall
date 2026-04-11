@@ -10,6 +10,7 @@
  * Use of this source code is governed by the project license.
  */
 #include <wall/util/Env.hpp>
+
 #include <vix/utils/Env.hpp>
 
 namespace wall::util
@@ -42,6 +43,11 @@ namespace wall::util
   int Env::port()
   {
     return vix::utils::env_int("APP_PORT", 8080);
+  }
+
+  int Env::ws_port()
+  {
+    return vix::utils::env_int("WS_PORT", 9090);
   }
 
   std::string Env::public_url()

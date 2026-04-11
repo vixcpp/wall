@@ -64,6 +64,11 @@ namespace wall::util
     static int port();
 
     /**
+     * @brief WebSocket listen port.
+     */
+    static int ws_port();
+
+    /**
      * @brief Public base URL.
      */
     static std::string public_url();

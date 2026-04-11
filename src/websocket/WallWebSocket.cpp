@@ -182,4 +182,14 @@ namespace wall::websocket
     return reinterpret_cast<std::uintptr_t>(&session);
   }
 
+  vix::websocket::Server &WallWebSocket::server() noexcept
+  {
+    return server_;
+  }
+
+  const vix::websocket::Server &WallWebSocket::server() const noexcept
+  {
+    return server_;
+  }
+
 } // namespace wall::websocket

@@ -50,6 +50,7 @@ namespace wall::config
      * @param app_root Root directory of the application
      * @param host HTTP host
      * @param port HTTP port
+     * @param ws_port WebSocket port
      * @param public_url Public base URL
      * @param database_path SQLite database path (relative or absolute)
      * @param log_dir Log directory path (relative or absolute)
@@ -63,6 +64,7 @@ namespace wall::config
                std::string app_root,
                std::string host,
                int port,
+               int ws_port,
                std::string public_url,
                std::string database_path,
                std::string log_dir,
@@ -93,6 +95,11 @@ namespace wall::config
      * @brief Get the HTTP port.
      */
     [[nodiscard]] int port() const noexcept;
+
+    /**
+     * @brief Get the WebSocket port.
+     */
+    [[nodiscard]] int ws_port() const noexcept;
 
     /**
      * @brief Get the public base URL.
@@ -153,6 +160,7 @@ namespace wall::config
     std::string app_root_{"."};
     std::string host_{"0.0.0.0"};
     int port_{8080};
+    int ws_port_{9090};
     std::string public_url_{"http://localhost:8080"};
     std::string database_path_{"data/wall.db"};
     std::string log_dir_{"data/logs"};
