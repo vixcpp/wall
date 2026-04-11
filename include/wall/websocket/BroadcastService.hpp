@@ -2,9 +2,12 @@
  * @file BroadcastService.hpp
  * @author Gaspard Kirira
  *
- * wall
+ * Copyright 2026, Gaspard Kirira. All rights reserved.
  *
- * Realtime broadcast payload builder for wall.
+ * wall
+ * Live production application built with Vix.cpp.
+ *
+ * Use of this source code is governed by the project license.
  */
 
 #ifndef WALL_WEBSOCKET_BROADCASTSERVICE_HPP

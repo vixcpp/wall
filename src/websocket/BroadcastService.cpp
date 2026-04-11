@@ -1,5 +1,15 @@
+/**
+ * @file BroadcastService.cpp
+ * @author Gaspard Kirira
+ *
+ * Copyright 2026, Gaspard Kirira. All rights reserved.
+ *
+ * wall
+ * Live production application built with Vix.cpp.
+ *
+ * Use of this source code is governed by the project license.
+ */
 #include <wall/websocket/BroadcastService.hpp>
-
 #include <wall/json/EventJson.hpp>
 #include <wall/json/MessageJson.hpp>
 #include <wall/json/StatsJson.hpp>

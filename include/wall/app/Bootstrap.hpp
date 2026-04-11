@@ -2,11 +2,13 @@
  * @file Bootstrap.hpp
  * @author Gaspard Kirira
  *
- * wall
+ * Copyright 2026, Gaspard Kirira. All rights reserved.
  *
- * Application bootstrap for wall.
+ * wall
+ * Live production application built with Vix.cpp.
+ *
+ * Use of this source code is governed by the project license.
  */
-
 #ifndef WALL_APP_BOOTSTRAP_HPP
 #define WALL_APP_BOOTSTRAP_HPP
 

@@ -2,9 +2,12 @@
  * @file WallConfig.hpp
  * @author Gaspard Kirira
  *
- * wall
+ * Copyright 2026, Gaspard Kirira. All rights reserved.
  *
- * Application configuration for wall.
+ * wall
+ * Live production application built with Vix.cpp.
+ *
+ * Use of this source code is governed by the project license.
  */
 
 #ifndef WALL_CONFIG_WALLCONFIG_HPP

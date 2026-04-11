@@ -2,11 +2,13 @@
  * @file ValidationJson.hpp
  * @author Gaspard Kirira
  *
- * wall
+ * Copyright 2026, Gaspard Kirira. All rights reserved.
  *
- * JSON helpers for validation results.
+ * wall
+ * Live production application built with Vix.cpp.
+ *
+ * Use of this source code is governed by the project license.
  */
-
 #ifndef WALL_VALIDATION_VALIDATIONJSON_HPP
 #define WALL_VALIDATION_VALIDATIONJSON_HPP
 

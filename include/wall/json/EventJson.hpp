@@ -2,9 +2,12 @@
  * @file EventJson.hpp
  * @author Gaspard Kirira
  *
- * wall
+ * Copyright 2026, Gaspard Kirira. All rights reserved.
  *
- * JSON event helpers for wall realtime payloads.
+ * wall
+ * Live production application built with Vix.cpp.
+ *
+ * Use of this source code is governed by the project license.
  */
 
 #ifndef WALL_JSON_EVENTJSON_HPP

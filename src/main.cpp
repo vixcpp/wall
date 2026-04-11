@@ -2,15 +2,16 @@
  * @file main.cpp
  * @author Gaspard Kirira
  *
- * wall
+ * Copyright 2026, Gaspard Kirira. All rights reserved.
  *
- * Entry point for the wall backend.
+ * wall
+ * Live production application built with Vix.cpp.
+ *
+ * Use of this source code is governed by the project license.
  */
-
 #include <exception>
-#include <iostream>
-
 #include <wall/app/App.hpp>
+#include <vix/console.hpp>
 
 int main()
 {
@@ -22,12 +23,12 @@ int main()
   }
   catch (const std::exception &e)
   {
-    std::cerr << "[wall] fatal error: " << e.what() << '\n';
+    vix::console.error("[wall] fatal error: ", e.what());
     return 1;
   }
   catch (...)
   {
-    std::cerr << "[wall] fatal error: unknown exception\n";
+    vix::console.error("[wall] fatal error: unknown exception");
     return 1;
   }
 }

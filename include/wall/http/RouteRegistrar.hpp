@@ -2,9 +2,12 @@
  * @file RouteRegistrar.hpp
  * @author Gaspard Kirira
  *
- * wall
+ * Copyright 2026, Gaspard Kirira. All rights reserved.
  *
- * Central HTTP route registration for wall.
+ * wall
+ * Live production application built with Vix.cpp.
+ *
+ * Use of this source code is governed by the project license.
  */
 
 #ifndef WALL_HTTP_ROUTEREGISTRAR_HPP

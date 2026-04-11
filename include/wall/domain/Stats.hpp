@@ -2,11 +2,13 @@
  * @file Stats.hpp
  * @author Gaspard Kirira
  *
- * wall
+ * Copyright 2026, Gaspard Kirira. All rights reserved.
  *
- * Domain model for public wall statistics.
+ * wall
+ * Live production application built with Vix.cpp.
+ *
+ * Use of this source code is governed by the project license.
  */
-
 #ifndef WALL_DOMAIN_STATS_HPP
 #define WALL_DOMAIN_STATS_HPP
 

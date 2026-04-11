@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>wall | Powered by Vix.cpp</title>
+  <meta
+    name="description"
+    content="Public real-time wall powered by Vix.cpp. Post a message and see it appear instantly for everyone."
+  />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <div class="hero__content">
+        <p class="hero__eyebrow">Live production demo</p>
+        <h1 class="hero__title">wall</h1>
+        <p class="hero__subtitle">
+          Public real-time wall powered by <strong>Vix.cpp</strong>.
+          Post a message and see it appear instantly for everyone.
+        </p>
+
+        <div class="hero__meta">
+          <span class="badge">HTTP</span>
+          <span class="badge">WebSocket</span>
+          <span class="badge">SQLite</span>
+          <span class="badge">C++</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel panel--composer">
+        <div class="panel__head">
+          <h2>Write on the wall</h2>
+          <p>No account. No setup. Just test it.</p>
+        </div>
+
+        <form id="message-form" class="composer-form">
+          <div class="field">
+            <label for="username">Username</label>
+            <input
+              id="username"
+              name="username"
+              type="text"
+              maxlength="32"
+              placeholder="Your name"
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="field">
+            <label for="message">Message</label>
+            <textarea
+              id="message"
+              name="message"
+              rows="4"
+              maxlength="280"
+              placeholder="Write something..."
+            ></textarea>
+            <div class="field__meta">
+              <span id="message-count">0 / 280</span>
+            </div>
+          </div>
+
+          <div id="form-errors" class="form-errors" hidden></div>
+
+          <div class="composer-actions">
+            <button id="submit-button" class="button button--primary" type="submit">
+              Send message
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <aside class="sidebar">
+        <section class="panel panel--stats">
+          <div class="panel__head">
+            <h2>Live stats</h2>
+            <p>Updated in real time</p>
+          </div>
+
+          <div class="stats-grid">
+            <article class="stat-card">
+              <span class="stat-card__label">Messages</span>
+              <strong id="stat-messages" class="stat-card__value">0</strong>
+            </article>
+
+            <article class="stat-card">
+              <span class="stat-card__label">Reactions</span>
+              <strong id="stat-reactions" class="stat-card__value">0</strong>
+            </article>
+
+            <article class="stat-card">
+              <span class="stat-card__label">Online</span>
+              <strong id="stat-online" class="stat-card__value">0</strong>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel panel--status">
+          <div class="panel__head">
+            <h2>Status</h2>
+            <p>Realtime connection</p>
+          </div>
+
+          <div class="status-line">
+            <span id="connection-dot" class="status-dot"></span>
+            <span id="connection-text">Connecting...</span>
+          </div>
+
+          <div class="status-info">
+            <div>
+              <span class="status-info__label">Session</span>
+              <strong id="session-id">-</strong>
+            </div>
+          </div>
+        </section>
+      </aside>
+    </main>
+
+    <section class="feed-section">
+      <div class="feed-section__head">
+        <h2>Latest messages</h2>
+        <p>Everyone sees updates live.</p>
+      </div>
+
+      <div id="feed-empty" class="feed-empty" hidden>
+        No messages yet. Be the first to post.
+      </div>
+
+      <div id="feed" class="feed"></div>
+    </section>
+
+    <footer class="footer">
+      <p>
+        Powered by <strong>Vix.cpp</strong> • Public demo wall
+      </p>
+    </footer>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

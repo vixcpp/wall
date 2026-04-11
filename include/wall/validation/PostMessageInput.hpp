@@ -2,9 +2,12 @@
  * @file PostMessageInput.hpp
  * @author Gaspard Kirira
  *
- * wall
+ * Copyright 2026, Gaspard Kirira. All rights reserved.
  *
- * Input model and validation for posting a wall message.
+ * wall
+ * Live production application built with Vix.cpp.
+ *
+ * Use of this source code is governed by the project license.
  */
 
 #ifndef WALL_VALIDATION_POSTMESSAGEINPUT_HPP

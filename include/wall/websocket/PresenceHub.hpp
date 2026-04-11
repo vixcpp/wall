@@ -2,9 +2,12 @@
  * @file PresenceHub.hpp
  * @author Gaspard Kirira
  *
- * wall
+ * Copyright 2026, Gaspard Kirira. All rights reserved.
  *
- * In-memory presence tracker for wall realtime sessions.
+ * wall
+ * Live production application built with Vix.cpp.
+ *
+ * Use of this source code is governed by the project license.
  */
 
 #ifndef WALL_WEBSOCKET_PRESENCEHUB_HPP

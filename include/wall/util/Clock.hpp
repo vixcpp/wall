@@ -2,16 +2,13 @@
  * @file Clock.hpp
  * @author Gaspard Kirira
  *
+ * Copyright 2026, Gaspard Kirira. All rights reserved.
+ *
  * wall
+ * Live production application built with Vix.cpp.
  *
- * Lightweight time helpers built on top of Vix time module.
- *
- * Purpose:
- * - centralize time usage across the project
- * - avoid direct std::chrono usage in business code
- * - keep a consistent timestamp format
+ * Use of this source code is governed by the project license.
  */
-
 #ifndef WALL_UTIL_CLOCK_HPP
 #define WALL_UTIL_CLOCK_HPP
 

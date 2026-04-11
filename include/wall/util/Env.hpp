@@ -2,11 +2,12 @@
  * @file Env.hpp
  * @author Gaspard Kirira
  *
+ * Copyright 2026, Gaspard Kirira. All rights reserved.
+ *
  * wall
+ * Live production application built with Vix.cpp.
  *
- * Environment helpers for wall.
- *
- * This is a thin app-specific wrapper around vix::utils::Env.
+ * Use of this source code is governed by the project license.
  */
 
 #ifndef WALL_UTIL_ENV_HPP

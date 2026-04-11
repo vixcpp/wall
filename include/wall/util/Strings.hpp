@@ -2,9 +2,12 @@
  * @file Strings.hpp
  * @author Gaspard Kirira
  *
- * wall
+ * Copyright 2026, Gaspard Kirira. All rights reserved.
  *
- * String helpers for wall (built on top of vix::utils).
+ * wall
+ * Live production application built with Vix.cpp.
+ *
+ * Use of this source code is governed by the project license.
  */
 
 #ifndef WALL_UTIL_STRINGS_HPP

@@ -2,9 +2,12 @@
  * @file ReactionService.hpp
  * @author Gaspard Kirira
  *
- * wall
+ * Copyright 2026, Gaspard Kirira. All rights reserved.
  *
- * Application service for wall reactions.
+ * wall
+ * Live production application built with Vix.cpp.
+ *
+ * Use of this source code is governed by the project license.
  */
 
 #ifndef WALL_SERVICES_REACTIONSERVICE_HPP
