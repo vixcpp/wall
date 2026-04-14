@@ -42,16 +42,17 @@ namespace wall::app
   {
     core_config_.set("websocket.host", "0.0.0.0");
     core_config_.set("websocket.port", config_.ws_port());
+    core_config_.set("websocket.io_threads", 1);
 
-    ws_server_ = std::make_unique<vix::websocket::Server>(core_config_, ws_executor_);
+    ws_server_ = std::make_unique<vix::websocket::Server>(
+        core_config_,
+        ws_executor_);
 
     wall_websocket_ = std::make_unique<wall::websocket::WallWebSocket>(
         *ws_server_,
         wall_service_,
         presence_hub_,
         broadcast_service_);
-
-    wall_websocket_->install();
 
     http_server_ = std::make_unique<wall::http::HttpServer>(
         config_,

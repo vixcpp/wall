@@ -18,6 +18,24 @@
   const WS_PATH = "/";
 
   let dom = null;
+  let statsPollTimer = null;
+
+  function startStatsPolling() {
+    stopStatsPolling();
+
+    statsPollTimer = setInterval(() => {
+      loadStats().catch((error) => {
+        console.error("Failed to refresh stats:", error);
+      });
+    }, 2000);
+  }
+
+  function stopStatsPolling() {
+    if (statsPollTimer !== null) {
+      clearInterval(statsPollTimer);
+      statsPollTimer = null;
+    }
+  }
 
   function getDom() {
     return {
@@ -528,6 +546,7 @@
       console.error("Bootstrap failed:", error);
     }
 
+    startStatsPolling();
     connectWebSocket();
   }
 

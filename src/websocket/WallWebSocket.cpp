@@ -18,6 +18,7 @@
 
 #include <vix/websocket/protocol.hpp>
 #include <wall/websocket/WallEvents.hpp>
+#include <vix/websocket/session.hpp>
 
 namespace wall::websocket
 {
