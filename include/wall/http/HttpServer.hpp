@@ -14,6 +14,8 @@
 #define WALL_HTTP_HTTPSERVER_HPP
 
 #include <memory>
+#include <memory>
+#include <vix/executor/RuntimeExecutor.hpp>
 
 namespace vix
 {
@@ -61,7 +63,8 @@ namespace wall::http
                wall::storage::Sqlite &sqlite,
                wall::services::WallService &wall_service,
                wall::websocket::WallWebSocket &wall_websocket,
-               wall::websocket::PresenceHub &presence_hub);
+               wall::websocket::PresenceHub &presence_hub,
+               std::shared_ptr<vix::executor::RuntimeExecutor> ws_executor);
 
     /**
      * @brief Destroy the HTTP server wrapper.
@@ -105,6 +108,7 @@ namespace wall::http
     wall::websocket::WallWebSocket &wall_websocket_;
     wall::websocket::PresenceHub &presence_hub_;
     std::unique_ptr<vix::App> app_;
+    std::shared_ptr<vix::executor::RuntimeExecutor> ws_executor_;
   };
 
 } // namespace wall::http

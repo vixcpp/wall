@@ -28,12 +28,14 @@ namespace wall::http
                          wall::storage::Sqlite &sqlite,
                          wall::services::WallService &wall_service,
                          wall::websocket::WallWebSocket &wall_websocket,
-                         wall::websocket::PresenceHub &presence_hub)
+                         wall::websocket::PresenceHub &presence_hub,
+                         std::shared_ptr<vix::executor::RuntimeExecutor> ws_executor)
       : config_(config),
         sqlite_(sqlite),
         wall_service_(wall_service),
         wall_websocket_(wall_websocket),
         presence_hub_(presence_hub),
+        ws_executor_(std::move(ws_executor)),
         app_(std::make_unique<vix::App>())
   {
   }
@@ -66,8 +68,7 @@ namespace wall::http
     vix::run_http_and_ws(
         *app_,
         wall_websocket_.server(),
-        nullptr,
+        ws_executor_,
         config_.port());
   }
-
 } // namespace wall::http

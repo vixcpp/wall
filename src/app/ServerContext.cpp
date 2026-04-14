@@ -59,7 +59,8 @@ namespace wall::app
         sqlite_,
         wall_service_,
         *wall_websocket_,
-        presence_hub_);
+        presence_hub_,
+        ws_executor_);
 
     wall::storage::Schema::ensure(sqlite_);
   }
